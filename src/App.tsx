@@ -2,11 +2,20 @@ import { useState } from 'react'
 import { FileInput } from './components/FileInput'
 import { MatchesLogsList } from './components/MatchesLogsList'
 
+type PlayerLog = {
+  playerID: number
+  kills: number
+  name: string
+  oldNames: string[]
+}
+
 type MatchStatus = {
   totalKills: number
+  playersLogs: PlayerLog[]
 }
 
 type MatchLog = {
+  matchID: number
   status: MatchStatus
 }
 
@@ -22,7 +31,7 @@ function App() {
       <h1>Partida de Quake parseada</h1>
       <FileInput updateMatchesLogsList={updateMatchesLogsList} />
       <MatchesLogsList matchesLogsList={matchesLogsList} />
-      Page made by DeAlmeida.
+      Page made by Felippe de Almeida.
     </div>
   )
 }

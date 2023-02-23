@@ -1,10 +1,19 @@
 import { ParseLog } from './ParseLog'
 
+type PlayerLog = {
+  playerID: number
+  kills: number
+  name: string
+  oldNames: string[]
+}
+
 type MatchStatus = {
   totalKills: number
+  playersLogs: PlayerLog[]
 }
 
 type MatchLog = {
+  matchID: number
   status: MatchStatus
 }
 
@@ -30,7 +39,7 @@ export function FileInput({ updateMatchesLogsList }: FileInputProps) {
   }
 
   function handleFileInput({ target }: any) {
-    console.log(typeof target)
+    console.log(target)
     loadFile(target.files[0])
   }
 

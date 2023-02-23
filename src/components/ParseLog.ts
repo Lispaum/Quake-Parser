@@ -15,6 +15,8 @@ type MatchLog = {
   status: MatchStatus
 }
 
+// function ParseLine(line: string) {}
+
 export function ParseLog(log: string) {
   const logLines: string[] = log.split('\n')
 
@@ -26,6 +28,9 @@ export function ParseLog(log: string) {
   let ps: PlayerLog[]
   let killedIndex: number
   let killerIndex: number
+
+  let currentPlayerIndex: number
+  let currentPlayer
 
   const validEvents = [
     'Kill',
@@ -58,13 +63,15 @@ export function ParseLog(log: string) {
         currentGame.status.totalKills++
 
         result = line.match(
-          /(?<killerID>\d+)\s(?<killedID>\d+)\s\d+:\s(?<killer>[\w\s!\<\>]+)\skilled\s(?<killed>[\w\s!]+)\sby\s(?<mod>[\w]+)/,
-        ).groups
+          /(?<killerID>\d+)\s(?<killedID>\d+)\s\d+:\s(?<killer>[\w\s!<>]+)\skilled\s(?<killed>[\w\s!]+)\sby\s(?<mod>[\w]+)/,
+        )!.groups
 
-        // console.log(result)
+        console.log(result)
+        if (!result) return true
+
         ps = currentGame.status.playersLogs
-        killedIndex = result.killedID - 2
-        killerIndex = result.killerID - 2
+        killedIndex = Number(result.killedID) - 2
+        killerIndex = Number(result.killerID) - 2
 
         if (result.killerID === '1022') {
           ps[killedIndex].kills--
@@ -82,7 +89,7 @@ export function ParseLog(log: string) {
       case 'InitGame':
         // console.log('Inicio da Partida ' + currentGameIndex)
 
-        parsedLogs.push({})
+        parsedLogs.push({} as MatchLog)
         currentGame = parsedLogs[currentGameIndex]
         currentGame.matchID = currentGameIndex
         currentGame.status = { playersLogs: [], totalKills: 0 }
@@ -103,17 +110,17 @@ export function ParseLog(log: string) {
         //  3:47 ClientUserinfoChanged: 5 n\Assasinu Credi\t\0\model\.....
         result = line.match(
           /(?<playerID>[0-9]+)\sn\\(?<playerNick>[\w\s!]+)\\t\\/,
-        ).groups
+        )!.groups
+
+        if (!result) return true
 
         // console.log(line)
 
-        const currentPlayerIndex: number = result.playerID - 2
-
-        let currentPlayer
+        currentPlayerIndex = Number(result.playerID) - 2
 
         // se nao existir o player, cria
         if (!currentGame.status.playersLogs[currentPlayerIndex]) {
-          currentGame.status.playersLogs[currentPlayerIndex] = {}
+          currentGame.status.playersLogs[currentPlayerIndex] = <PlayerLog>{}
           currentPlayer = currentGame.status.playersLogs[currentPlayerIndex]
           currentPlayer.playerID = Number(result.playerID)
           currentPlayer.name = result.playerNick
@@ -123,7 +130,7 @@ export function ParseLog(log: string) {
 
         currentPlayer = currentGame.status.playersLogs[currentPlayerIndex]
 
-        if (currentPlayer.name != result.playerNick) {
+        if (currentPlayer.name !== result.playerNick) {
           currentPlayer.oldNames.unshift(currentPlayer.name)
           currentPlayer.name = result.playerNick
         }
@@ -140,6 +147,6 @@ export function ParseLog(log: string) {
 
   // no fim parsedLogs tem de ser um array de JSONs
 
-  console.log(parsedLogs)
+  // console.log(parsedLogs)
   return parsedLogs
 }
